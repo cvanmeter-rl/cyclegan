@@ -22,15 +22,36 @@ class UnalignedDataset(BaseDataset):
         self.transform = get_transform(opt)
 
     def __getitem__(self, index):
-        A_path = self.A_paths[index % self.A_size]
-        if self.opt.serial_batches:
-            index_B = index % self.B_size
-        else:
-            index_B = random.randint(0, self.B_size - 1)
-        B_path = self.B_paths[index_B]
+        k = 10 #retry k times to get a valid image if invalid is found
+
+        for _ in range(k):
+            A_path = self.A_paths[index % self.A_size]
+            try:
+                A_img = Image.open(A_path).convert('RGB')
+                break
+            except Exception as e:
+                print(f"[WARN] Skipping unreadable A: {A_path} ({e})", file=sys.stderr)
+                index = (index + 1) % self.A_size
+            else:
+                raise RuntimeError("Too many unreadable A images in a row.")
+
+        for _ in range(k):
+            if self.opt.serial_batches:
+                index_B = index % self.B_size
+            else:
+                index_B = random.randint(0, self.B_size - 1)
+            B_path = self.B_paths[index_B]
+            try: 
+                B_img = Image.open(B_path).convert('RGB')
+                break
+            except Exception as e:
+                print(f"[WARN] Skipping unreadable B: {B_path} ({e})", file=sys.stderr)
+            else:
+                raise RuntimeError("Too many unreadable B images in a row.")
+        
         # print('(A, B) = (%d, %d)' % (index_A, index_B))
-        A_img = Image.open(A_path).convert('RGB')
-        B_img = Image.open(B_path).convert('RGB')
+        # A_img = Image.open(A_path).convert('RGB')
+        # B_img = Image.open(B_path).convert('RGB')
 
         A = self.transform(A_img)
         B = self.transform(B_img)
