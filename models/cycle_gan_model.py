@@ -22,6 +22,13 @@ class CycleGANModel(BaseModel):
             visual_names_B.append('idt_B')
 
         self.visual_names = visual_names_A + visual_names_B
+
+        if not self.isTrain:
+            if self.opt.which_direction == 'AtoB':
+                self.visual_names = ['fake_B']
+            else:
+                self.visual_names = ['fake_A']
+        
         # specify the models you want to save to the disk. The program will call base_model.save_networks and base_model.load_networks
         if self.isTrain:
             self.model_names = ['G_A', 'G_B', 'D_A', 'D_B']
