@@ -162,6 +162,7 @@ class CycleGANWithSupervision(BaseModel):
 
             target = self.mask_A                     # [N,H,W], long
             if logits.shape[-2:] != target.shape[-2:]:
+                print('logits shape doesnt match')
                 target = F.interpolate(
                     target.unsqueeze(1).float(),
                     size=logits.shape[-2:], mode='nearest'
