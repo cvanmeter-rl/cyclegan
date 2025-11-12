@@ -12,6 +12,9 @@ class UnalignedDataset(BaseDataset):
         self.dir_A = os.path.join(opt.dataroot, opt.phase + 'A')
         self.dir_B = os.path.join(opt.dataroot, opt.phase + 'B')
 
+        if opt.dir_A_mask is not None:
+            self.dir_A_mask = getattr(opt,'mask_dir_A',None)
+
         self.A_paths = make_dataset(self.dir_A)
         self.B_paths = make_dataset(self.dir_B)
 
@@ -20,6 +23,27 @@ class UnalignedDataset(BaseDataset):
         self.A_size = len(self.A_paths)
         self.B_size = len(self.B_paths)
         self.transform = get_transform(opt)
+    def mask_path_from_A(self, A_path):
+        """
+        Build the mask path from the A image filename.
+        If mask_dir_A is provided, we keep the filename (stem + suffix).
+        """
+        if self.dir_A_mask is None:
+            return None
+        fname = os.path.basename(A_path)
+        return os.path.join(self.dir_A_mask, fname)
+
+    def load_mask_long(self, mask_path):
+        """
+        Load per-pixel class indices as torch.long [H, W].
+        DO NOT normalize; do NOT use bilinear.
+        """
+        if mask_path is None or (not os.path.exists(mask_path)):
+            return None
+        # load as 8-bit grayscale, values like {0..C-1, 255}
+        m = np.array(Image.open(mask_path), dtype=np.uint8)  # [H,W]
+        # convert to torch.long
+        return torch.from_numpy(m.astype(np.int64))          # [H,W], long
 
     def __getitem__(self, index):
         k = 10 #retry k times to get a valid image if invalid is found
@@ -69,8 +93,13 @@ class UnalignedDataset(BaseDataset):
         if output_nc == 1:  # RGB to gray
             tmp = B[0, ...] * 0.299 + B[1, ...] * 0.587 + B[2, ...] * 0.114
             B = tmp.unsqueeze(0)
-        return {'A': A, 'B': B,
-                'A_paths': A_path, 'B_paths': B_path}
+        sample = {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
+
+        mask_path = self.mask_path_from_A(A_path)
+        A_mask = self.load_mask_long(mask_path)
+        if A_mask is not None:
+            sample['A_mask'] = A_mask
+        return sample
 
     def __len__(self):
         return max(self.A_size, self.B_size)
