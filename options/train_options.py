@@ -29,4 +29,27 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--lr_policy', type=str, default='lambda', help='learning rate policy: lambda|step|plateau')
         self.parser.add_argument('--lr_decay_iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
 
-        self.isTrain = True
+        # --- Task model (teacher) ---
+        parser.add_argument('--seg_checkpoint', type=str, required=True,
+                        help='Path to real-trained segmentation checkpoint (.pth).')
+        parser.add_argument('--num_classes', type=int, required=True,
+                        help='Number of seg classes in the task model.')
+        parser.add_argument('--lambda_seg', type=float, default=1.0,
+                        help='Weight for supervised segmentation loss.')
+        
+        # (optional) task model details
+        parser.add_argument('--seg_encoder', type=str, default='vitl')
+        parser.add_argument('--seg_decoder', type=str, default='dpt')
+        
+        # normalization stats used to train the task model:
+        # If your checkpoint used ImageNet 0–1 stats, set these to 0.485/0.456/0.406 etc.
+        # If it used 0–255 tuples (123.675...), pass those here instead.
+        parser.add_argument('--seg_mean', type=float, nargs=3, default=[123.675, 116.28, 103.53])
+        parser.add_argument('--seg_std',  type=float, nargs=3, default=[58.395, 57.12, 57.375])
+        
+        # (optional) center crop fed to the task model; omit if not used
+        parser.add_argument('--seg_crop', type=int, nargs=2, default=[504,504])
+        
+        # (recommended) to keep labels consistent
+        parser.add_argument('--ignore_index', type=int, default=255)
+            self.isTrain = True
