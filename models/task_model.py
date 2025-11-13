@@ -16,7 +16,7 @@ class Task_Network(nn.Module):
       norm_mean: Tuple[float, float, float] = (123.675, 116.28, 103.53),
       norm_std: Tuple[float, float, float]  = (58.395, 57.12, 57.375),
       input_crop: Optional[Tuple[int, int]] = None,   # e.g., (504, 504) or None
-      device: Optional[torch.device] = None
+      device: Optional[torch.device] = 'cuda:0'
   ):
       super().__init__()
 
