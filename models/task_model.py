@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from albumentations.pytorch.functional import img_to_tensor
 from typing import Optional, Tuple
 from models.dpt import DPT_DINOv2
 
