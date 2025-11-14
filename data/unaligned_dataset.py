@@ -12,7 +12,7 @@ class UnalignedDataset(BaseDataset):
         self.dir_A = os.path.join(opt.dataroot, opt.phase + 'A')
         self.dir_B = os.path.join(opt.dataroot, opt.phase + 'B')
 
-        if opt.dir_A_mask is not None:
+        if opt.mask_dir_A is not None:
             self.dir_A_mask = getattr(opt,'mask_dir_A',None)
 
         self.A_paths = make_dataset(self.dir_A)
