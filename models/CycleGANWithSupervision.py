@@ -7,7 +7,7 @@ from .base_model import BaseModel
 from . import networks
 
 # NEW: your frozen task model wrapper
-from models.task_network import task_model
+from models.task_model import Task_Network
 
 class CycleGANWithSupervision(BaseModel):
     def name(self):
