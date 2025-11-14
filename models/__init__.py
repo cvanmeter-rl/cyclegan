@@ -18,7 +18,7 @@ def create_model(opt):
     elif opt.model == 'cycle_gan_semantic':
         from .cycle_gan_semantic_model import CycleGANSemanticModel
         model = CycleGANSemanticModel()
-    elif opt.model == 'CycleGANWithSupervision'
+    elif opt.model == 'CycleGANWithSupervision':
         from .CycleGANWithSupervision import CycleGANWithSupervision
         model = CycleGANWithSupervision()
     else:
