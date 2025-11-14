@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple
-from models.dpt import DPT_DINOv2
+from synrs3d.models.dpt import DPT_DINOv2
 
 class Task_Network(nn.Module):
   def __init__(
