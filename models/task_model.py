@@ -1,8 +1,3 @@
-# task_model.py (top of file)
-import sys
-# Make SynRS3D repo root the first search path, so "models.xxx" resolves to SynRS3D
-sys.path.insert(0, "/mnt/synrs3d/SynRS3D")
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
