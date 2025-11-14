@@ -102,7 +102,7 @@ class CycleGANWithSupervision(BaseModel):
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
         # NEW: supervised mask for A→B (synthetic labels)
-        self.mask_A = input.get('A_mask' if AtoB else 'B_mask', None)
+        self.mask_A = input.get('A_mask', None)
         if self.mask_A is not None:
             self.mask_A = self.mask_A.to(self.device).long()   # [N,H,W]
 
