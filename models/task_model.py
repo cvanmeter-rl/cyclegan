@@ -57,7 +57,7 @@ class Task_Network(nn.Module):
           xs = max((W - tw) // 2, 0)
           x01_norm = x01_norm[:, :, ys:ys+th, xs:xs+tw]
       return x01_norm
-   def forward(self, x_minus1_1: torch.Tensor) -> torch.Tensor:
+  def forward(self, x_minus1_1: torch.Tensor) -> torch.Tensor:
       x = self.preprocess(x_minus1_1)
       out = self.model(x)
       return out["segmentation"]
