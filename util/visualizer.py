@@ -6,6 +6,26 @@ from . import util
 from . import html
 from scipy.misc import imresize
 
+from PIL import Image
+import numpy as np
+
+def imresize_np(img, size, interp=Image.BICUBIC):
+    """
+    img: HxW or HxWxC, uint8 [0..255] or float [0..1]
+    size: (newH, newW) or int
+    returns numpy array same dtype as input
+    """
+    is_float = np.issubdtype(img.dtype, np.floating)
+    if is_float:
+        # convert to uint8 for PIL, preserving dynamic range
+        img_pil = Image.fromarray(np.clip(img * 255.0, 0, 255).astype(np.uint8))
+    else:
+        img_pil = Image.fromarray(img)
+    img_resized = img_pil.resize((size[1], size[0]) if isinstance(size, (tuple, list)) else (size, size),
+                                 resample=interp)
+    out = np.array(img_resized)
+    return out.astype(np.float32)/255.0 if is_float else out
+
 
 # save image to the disk
 def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
@@ -22,9 +42,9 @@ def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
         save_path = os.path.join(image_dir, image_name)
         h, w, _ = im.shape
         if aspect_ratio > 1.0:
-            im = imresize(im, (h, int(w * aspect_ratio)), interp='bicubic')
+            im = imresize_np(im, (h, int(w * aspect_ratio)), interp='bicubic')
         if aspect_ratio < 1.0:
-            im = imresize(im, (int(h / aspect_ratio), w), interp='bicubic')
+            im = imresize_np(im, (int(h / aspect_ratio), w), interp='bicubic')
         util.save_image(im, save_path)
 
         ims.append(image_name)
