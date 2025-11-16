@@ -203,6 +203,8 @@ class CycleGANWithSupervision(BaseModel):
             print(f'Shape of mask {target.shape}')
             print(f'Shape of image {self.fake_B.shape}')
             self.loss_seg_AB = self.criterionSeg(logits, target) * self.lambda_seg
+        else:
+            print("mask is null")
 
         # total G loss
         self.loss_G = (self.loss_G_A + self.loss_G_B +
