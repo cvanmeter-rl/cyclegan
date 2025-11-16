@@ -43,7 +43,7 @@ class UnalignedDataset(BaseDataset):
         if mask_path is None or (not os.path.exists(mask_path)):
             return None
         # load as 8-bit grayscale, values like {0..C-1, 255}
-        m = np.array(Image.open(mask_path).convert('L'), dtype=np.uint8)  # [H,W]
+        m = np.array(Image.open(mask_path), dtype=np.uint8)  # [H,W]
         # convert to torch.long
         return torch.from_numpy(m.astype(np.int64))          # [H,W], long
 
