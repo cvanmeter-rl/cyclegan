@@ -4,6 +4,7 @@ from data.image_folder import make_dataset
 from PIL import Image
 import random
 import sys
+import numpy as np
 
 class UnalignedDataset(BaseDataset):
     def initialize(self, opt):
