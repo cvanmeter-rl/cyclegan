@@ -193,7 +193,8 @@ class CycleGANWithSupervision(BaseModel):
             target = labelmap(target, oem_label_rules)
             target = labelmap(target,oem_to_dfc19_rules) 
             target = torch.from_numpy(target.astype(np.int64)).to(self.device)
-            
+            print(f'target shape {target.shape}')
+            print(f'logits shape {logits.shape}')
             if logits.shape[-2:] != target.shape[-2:]:
                 print('logits shape doesnt match')
                 target = F.interpolate(
