@@ -98,6 +98,8 @@ class UnalignedDataset(BaseDataset):
             i, j, h, w = T.RandomCrop.get_params(A_img, output_size=(self.fine, self.fine))
             A_img = TF.crop(A_img, i, j, h, w)
             if A_mask_pil is not None:
+                if A_mask_pil.mode in ("RGB", "RGBA", "LA"):
+                    A_mask_pil = A_mask_pil.convert("L")
                 A_mask_pil = TF.crop(A_mask_pil, i, j, h, w)
             # image-only post: tensor + [-1,1]
             A = self.img_post(A_img)
@@ -128,6 +130,7 @@ class UnalignedDataset(BaseDataset):
                 mask_np = np.array(A_mask_pil, dtype=np.uint8)
                 A_mask = torch.from_numpy(mask_np.astype(np.int64))  # [H,W] long
                 sample['A_mask'] = A_mask
+                print(f'mask shape in dataset {A_mask.shape}')
             return sample
 
 
