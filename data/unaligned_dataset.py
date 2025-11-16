@@ -5,6 +5,7 @@ from PIL import Image
 import random
 import sys
 import numpy as np
+import torch
 
 class UnalignedDataset(BaseDataset):
     def initialize(self, opt):
