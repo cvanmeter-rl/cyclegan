@@ -50,7 +50,7 @@ class Task_Network(nn.Module):
       x01 = (x_minus1_1 + 1.0) / 2.0
       mean = self.mean.to(x01.device, non_blocking=True)
       std  = self.std.to(x01.device, non_blocking=True)
-      x01_norm = (x01 - self.mean) / self.std
+      x01_norm = (x01 - mean) / std
       if self.input_crop is not None:
           th, tw = self.input_crop
           _, _, H, W = x01_norm.shape
