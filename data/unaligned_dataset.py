@@ -99,6 +99,7 @@ class UnalignedDataset(BaseDataset):
 
         mask_path = self.mask_path_from_A(A_path)
         A_mask = self.load_mask_long(mask_path)
+        A_mask = self.transform(A_mask)
         if A_mask is not None:
             sample['A_mask'] = A_mask
         return sample
