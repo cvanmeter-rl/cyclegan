@@ -52,5 +52,5 @@ class TrainOptions(BaseOptions):
         
         # (recommended) to keep labels consistent
         self.parser.add_argument('--ignore_index', type=int, default=255)
-        self.parser.add_argument('--mask_dir_A',type=str,default='mnt/cycada/cycada/data2/trainA_masks/')
+        self.parser.add_argument('--mask_dir_A',type=str,default='/mnt/cycada/cycada/data2/trainA_masks/')
         self.isTrain = True
