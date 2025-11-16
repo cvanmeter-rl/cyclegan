@@ -59,8 +59,10 @@ class Task_Network(nn.Module):
           x01_norm = x01_norm[:, :, ys:ys+th, xs:xs+tw]
       return x01_norm
   def forward(self, x_minus1_1: torch.Tensor) -> torch.Tensor:
+      x_minus1_1.requires_grad_(True)
       x = self.preprocess(x_minus1_1)
-      out = self.model(x)
+      with torch.cuda.amp.autocast(enabled=True):
+          out = self.model(x)
       return out["segmentation"]
 
 
