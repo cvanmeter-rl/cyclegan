@@ -146,14 +146,14 @@ class DPT_DINOv2(nn.Module):
         assert encoder in ['vits', 'vitb', 'vitl']
         
         # in case the Internet connection is not stable, please load the DINOv2 locally
-        backbone_factory = {
-        'vits': dinov2_vits14,
-        'vitb': dinov2_vitb14,
-        'vitl': dinov2_vitl14,
-        }
-        self.pretrained = backbone_factory[encoder](pretrained=pretrained)
+        # backbone_factory = {
+        # 'vits': dinov2_vits14,
+        # 'vitb': dinov2_vitb14,
+        # 'vitl': dinov2_vitl14,
+        # }
+        # self.pretrained = backbone_factory[encoder](pretrained=pretrained)
 
-        #self.pretrained = torch.hub.load('facebookresearch/dinov2', 'dinov2_{:}14'.format(encoder), pretrained=pretrained)
+        self.pretrained = torch.hub.load('facebookresearch/dinov2', 'dinov2_{:}14'.format(encoder), pretrained=pretrained)
         
         dim = self.pretrained.blocks[0].attn.qkv.in_features
         
