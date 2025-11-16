@@ -61,8 +61,7 @@ class Task_Network(nn.Module):
   def forward(self, x_minus1_1: torch.Tensor) -> torch.Tensor:
       x_minus1_1.requires_grad_(True)
       x = self.preprocess(x_minus1_1)
-      with torch.cuda.amp.autocast(enabled=True):
-          out = self.model(x)
+      out = self.model(x)
       return out["segmentation"]
 
 
