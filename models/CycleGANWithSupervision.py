@@ -8,6 +8,7 @@ from . import networks
 
 # NEW: your frozen task model wrapper
 from models.task_model import Task_Network
+import numpy as np
 
 def labelmap(mask, rules):
     # Initialize mapped_mask with default value of 255, ensuring the same shape as mask
