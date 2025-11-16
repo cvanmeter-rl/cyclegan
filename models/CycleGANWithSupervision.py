@@ -200,8 +200,7 @@ class CycleGANWithSupervision(BaseModel):
                     size=logits.shape[-2:], mode='nearest'
                 ).squeeze(1).long()
                 print("shape did not match")
-            print(f'Shape of mask {target.shape}')
-            print(f'Shape of image {self.fake_B.shape}')
+
             self.loss_seg_AB = self.criterionSeg(logits, target) * self.lambda_seg
         else:
             print("mask is null")
