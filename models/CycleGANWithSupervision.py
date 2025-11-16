@@ -9,6 +9,25 @@ from . import networks
 # NEW: your frozen task model wrapper
 from models.task_model import Task_Network
 
+def labelmap(mask, rules):
+    # Initialize mapped_mask with default value of 255, ensuring the same shape as mask
+    mapped_mask = np.full(mask.shape, 255, dtype=np.uint8)
+    
+    # Iterate through each rule in the dictionary
+    for src_value, dst_value in rules.items():
+        # Ensure src_value is an integer, in case it's not already
+        src_value = int(src_value)
+        
+        # Apply the mapping where mask values match the current rule's source value
+        mapped_mask[mask == src_value] = dst_value
+    
+    return mapped_mask
+
+oem_label_rules = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7}
+
+
+oem_to_dfc19_rules = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 255, 6: 255, 7: 255 }
+
 class CycleGANWithSupervision(BaseModel):
     def name(self):
         return 'CycleGANWithSupervision'
@@ -159,14 +178,28 @@ class CycleGANWithSupervision(BaseModel):
         if (self.mask_A is not None) and (self.lambda_seg > 0):
             # Task_Network expects [-1,1]; it internally converts to the task stats
             logits = self.task_net(self.fake_B)      # [N,C,Hs,Ws]
-
+            
             target = self.mask_A                     # [N,H,W], long
+
+            crop_hw = getattr(self.task_net, "input_crop", None)  # e.g., (504,504)
+            if crop_hw is not None:
+                th, tw = crop_hw
+                H, W = target.shape[-2:]
+                ys = max((H - th) // 2, 0)
+                xs = max((W - tw) // 2, 0)
+                target = target[:, ys:ys+th, xs:xs+tw]  # nearest by slicing, preserves ints
+            target = target.detach().cpu().numpy().astype(np.uint8)
+            target = labelmap(target, oem_label_rules)
+            target = labelmap(target,oem_to_dfc19_rules) 
+            target = torch.from_numpy(target,astype(np.int64)).to(self.device)
+            
             if logits.shape[-2:] != target.shape[-2:]:
                 print('logits shape doesnt match')
                 target = F.interpolate(
                     target.unsqueeze(1).float(),
                     size=logits.shape[-2:], mode='nearest'
                 ).squeeze(1).long()
+                print("shape did not match")
 
             self.loss_seg_AB = self.criterionSeg(logits, target) * self.lambda_seg
 
