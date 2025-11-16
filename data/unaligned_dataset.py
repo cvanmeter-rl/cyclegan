@@ -6,6 +6,8 @@ import random
 import sys
 import numpy as np
 import torch
+import torchvision.transforms as T
+import torchvision.transforms.functional as TF
 
 class UnalignedDataset(BaseDataset):
     def initialize(self, opt):
@@ -16,6 +18,15 @@ class UnalignedDataset(BaseDataset):
 
         if opt.mask_dir_A is not None:
             self.dir_A_mask = getattr(opt,'mask_dir_A',None)
+        self.supervised = self.dir_A_mask is not None
+        self.fine = opt.fineSize
+        if self.supervised:
+            # image-only post transform: to tensor -> [-1,1]
+            self.img_post = T.Compose([
+                T.ToTensor(),
+                T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),  # [0,1] -> [-1,1]
+            ])
+        
 
         self.A_paths = make_dataset(self.dir_A)
         self.B_paths = make_dataset(self.dir_B)
@@ -78,9 +89,51 @@ class UnalignedDataset(BaseDataset):
         # print('(A, B) = (%d, %d)' % (index_A, index_B))
         # A_img = Image.open(A_path).convert('RGB')
         # B_img = Image.open(B_path).convert('RGB')
+        sample = {'A_paths': A_path, 'B_paths': B_path}
+        
+        if self.supervised:
+            mask_path = self.mask_path_from_A(A_path)
+            A_mask_pil = Image.open(mask_path) if (mask_path and os.path.exists(mask_path)) else None
+            
+            i, j, h, w = T.RandomCrop.get_params(A_img, output_size=(self.fine, self.fine))
+            A_img = TF.crop(A_img, i, j, h, w)
+            if A_mask_pil is not None:
+                A_mask_pil = TF.crop(A_mask_pil, i, j, h, w)
+            # image-only post: tensor + [-1,1]
+            A = self.img_post(A_img)
+
+            # B keeps original pipeline (may have its own RandomCrop)
+            B = self.transform(B_img)
+
+            # grayscale options if needed
+            if self.opt.which_direction == 'BtoA':
+                input_nc = self.opt.output_nc
+                output_nc = self.opt.input_nc
+            else:
+                input_nc = self.opt.input_nc
+                output_nc = self.opt.output_nc
+
+            if input_nc == 1:  # RGB to gray for A
+                tmp = A[0, ...] * 0.299 + A[1, ...] * 0.587 + A[2, ...] * 0.114
+                A = tmp.unsqueeze(0)
+
+            if output_nc == 1:  # RGB to gray for B
+                tmp = B[0, ...] * 0.299 + B[1, ...] * 0.587 + B[2, ...] * 0.114
+                B = tmp.unsqueeze(0)
+
+            sample['A'] = A
+            sample['B'] = B
+
+            if A_mask_pil is not None:
+                mask_np = np.array(A_mask_pil, dtype=np.uint8)
+                A_mask = torch.from_numpy(mask_np.astype(np.int64))  # [H,W] long
+                sample['A_mask'] = A_mask
+            return sample
+
 
         A = self.transform(A_img)
         B = self.transform(B_img)
+        
         if self.opt.which_direction == 'BtoA':
             input_nc = self.opt.output_nc
             output_nc = self.opt.input_nc
@@ -95,13 +148,10 @@ class UnalignedDataset(BaseDataset):
         if output_nc == 1:  # RGB to gray
             tmp = B[0, ...] * 0.299 + B[1, ...] * 0.587 + B[2, ...] * 0.114
             B = tmp.unsqueeze(0)
-        sample = {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
 
-        mask_path = self.mask_path_from_A(A_path)
-        A_mask = self.load_mask_long(mask_path)
-        A_mask = self.transform(A_mask)
-        if A_mask is not None:
-            sample['A_mask'] = A_mask
+        sample['A'] = A
+        sample['B'] = B
+
         return sample
 
     def __len__(self):
