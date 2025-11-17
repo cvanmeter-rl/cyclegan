@@ -90,9 +90,9 @@ class UnalignedDataset(BaseDataset):
         # A_img = Image.open(A_path).convert('RGB')
         # B_img = Image.open(B_path).convert('RGB')
         sample = {'A_paths': A_path, 'B_paths': B_path}
-        print('before')
+        
         if self.supervised:
-            print('after')
+            
             mask_path = self.mask_path_from_A(A_path)
             A_mask_pil = Image.open(mask_path) if (mask_path and os.path.exists(mask_path)) else None
             
@@ -126,12 +126,12 @@ class UnalignedDataset(BaseDataset):
 
             sample['A'] = A
             sample['B'] = B
-            print("before a mask pil")
+            
             if A_mask_pil is not None:
                 mask_np = np.array(A_mask_pil, dtype=np.uint8)
                 A_mask = torch.from_numpy(mask_np.astype(np.int64))  # [H,W] long
                 sample['A_mask'] = A_mask
-                print(f'mask shape in dataset {A_mask.shape}')
+               
             return sample
 
 
