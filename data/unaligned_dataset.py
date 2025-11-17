@@ -20,6 +20,7 @@ class UnalignedDataset(BaseDataset):
         self.supervised = self.dir_A_mask is not None
         self.fine = opt.fineSize
         if self.supervised:
+            print("supervised")
             # image-only post transform: to tensor -> [-1,1]
             self.img_post = T.Compose([
                 T.ToTensor(),
