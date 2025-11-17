@@ -125,7 +125,7 @@ class UnalignedDataset(BaseDataset):
 
             sample['A'] = A
             sample['B'] = B
-
+            print("before a mask pil")
             if A_mask_pil is not None:
                 mask_np = np.array(A_mask_pil, dtype=np.uint8)
                 A_mask = torch.from_numpy(mask_np.astype(np.int64))  # [H,W] long
