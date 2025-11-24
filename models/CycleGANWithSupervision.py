@@ -178,7 +178,6 @@ class CycleGANWithSupervision(BaseModel):
         if (self.mask_A is not None) and (self.lambda_seg > 0):
             # Task_Network expects [-1,1]; it internally converts to the task stats
             logits = self.task_net(self.fake_B) # [N,C,Hs,Ws]
-            logits = logits['segmentation']
             
             target = self.mask_A                     # [N,H,W], long
 
