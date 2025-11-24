@@ -24,10 +24,9 @@ def labelmap(mask, rules):
     
     return mapped_mask
 
-oem_label_rules = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7}
-
-
-oem_to_dfc19_rules = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 255, 6: 255, 7: 255 }
+#oem_label_rules = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7}
+#oem_to_dfc19_rules = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 255, 6: 255, 7: 255 }
+synthetic_rules = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 255, 7: 255, 8: 255}
 
 class CycleGANWithSupervision(BaseModel):
     def name(self):
@@ -190,8 +189,7 @@ class CycleGANWithSupervision(BaseModel):
                 xs = max((W - tw) // 2, 0)
                 target = target[:, ys:ys+th, xs:xs+tw]  # nearest by slicing, preserves ints
             target = target.detach().cpu().numpy().astype(np.uint8)
-            target = labelmap(target, oem_label_rules)
-            target = labelmap(target,oem_to_dfc19_rules) 
+            target = labelmap(target,synthetic_rules) 
             target = torch.from_numpy(target.astype(np.int64)).to(self.device)
      
             if logits.shape[-2:] != target.shape[-2:]:
