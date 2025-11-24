@@ -93,7 +93,7 @@ class UnalignedDataset(BaseDataset):
         
         if self.supervised:
             mask_path = self.mask_path_from_A(A_path)
-            print(f'Image Path: {A_path} | Mask Path: {mask_path}')
+            
             A_mask_pil = Image.open(mask_path) if (mask_path and os.path.exists(mask_path)) else None
             
             i, j, h, w = T.RandomCrop.get_params(A_img, output_size=(self.fine, self.fine))
