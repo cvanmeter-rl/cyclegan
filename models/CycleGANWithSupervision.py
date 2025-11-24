@@ -188,9 +188,9 @@ class CycleGANWithSupervision(BaseModel):
                 ys = max((H - th) // 2, 0)
                 xs = max((W - tw) // 2, 0)
                 target = target[:, ys:ys+th, xs:xs+tw]  # nearest by slicing, preserves ints
-            target = target.detach().cpu().numpy().astype(np.uint8)
-            target = labelmap(target,synthetic_rules) 
-            target = torch.from_numpy(target.astype(np.int64)).to(self.device)
+            target_cpu = target.detach().cpu().numpy().astype(np.uint8)
+            target_cpu = labelmap(target,synthetic_rules) 
+            target = torch.from_numpy(target_cpu.astype(np.int64)).to(self.device)
      
             if logits.shape[-2:] != target.shape[-2:]:
                 print('logits shape doesnt match')
