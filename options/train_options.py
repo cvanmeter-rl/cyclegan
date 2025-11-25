@@ -34,7 +34,7 @@ class TrainOptions(BaseOptions):
                         help='Path to real-trained segmentation checkpoint (.pth).')
         self.parser.add_argument('--num_classes', type=int, required=True,
                         help='Number of seg classes in the task model.')
-        self.parser.add_argument('--lambda_seg', type=float, default=1.0,
+        self.parser.add_argument('--lambda_seg', type=float, default=0.3,
                         help='Weight for supervised segmentation loss.')
         
         # (optional) task model details
